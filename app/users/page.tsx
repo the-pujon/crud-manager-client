@@ -112,10 +112,11 @@ const UsersManagement = () => {
                                 <TableCell className='flex items-center space-x-2'>
                                     {/* Add action buttons here */}
                                     <button>
-                                        <Edit size={20}/>
+                                    <Link href={`http://localhost:3000/users/${user._id}`}> <Edit size={20}/></Link>
+                                        
                                     </button>
                                     <button onClick={() => handleDelete(user._id as number)}>
-                                        <Trash2 size={20}/>
+                                       <Trash2 size={20}/>
                                     </button>
                                 </TableCell>
                             </TableRow>

@@ -13,5 +13,5 @@ export interface IUser {
     phone?: string;
     birthdate?: Date;
     gender?: 'male' | 'female' | 'other';
-    portrait?: URL;
+    // portrait?: URL;
 }

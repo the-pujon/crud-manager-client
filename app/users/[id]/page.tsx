@@ -1,6 +1,11 @@
 "use client";
+
+import { IUser } from "@/interface/userInterface";
+import Image from "next/image";
+import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
+// import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,117 +27,126 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-import { zfd } from "zod-form-data";
+// import { useState } from "react";
+// import { zfd } from "zod-form-data";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import Image from "next/image";
+import { IUserForm, userSchema } from "../createUser/page";
 import { useRouter } from "next/navigation";
-// import { useRouter } from "next/router";
+// import Image from "next/image";
 
-// Define Zod schema
-export const userSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.enum(["admin", "user"]),
-  address: z.string().min(1, "Address is required"),
-  active: z.boolean().optional(),
-  languages: z.array(z.string()).optional(), // Languages array remains
-  phone: z.string().optional(),
-  birthdate: z.date().optional(),
-  gender: z.enum(["male", "female", "other"]),
-  image: zfd.file().optional(),
-});
-
-export type IUserForm = z.infer<typeof userSchema>;
-
-const UserForm: React.FC = () => {
+const UpdateUser = () => {
+  const [data, setData] = useState<IUser | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const params = useParams();
   const router = useRouter()
 
   const {
     handleSubmit,
     control,
     register,
+    setValue,
     formState: { errors },
   } = useForm<IUserForm>({
     resolver: zodResolver(userSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      role: "user",
-      address: "",
-      active: true,
-      gender: "other",
-      phone: "",
-      languages: [], // default empty array
-    },
   });
 
-  const onSubmit = async (data: IUserForm) => {
-    console.log(data);
-    setLoading(true);
-    const formData = new FormData();
+  useEffect(() => {
+    // Fetch user data
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:4000/api/user/id/${params.id}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        const result = await response.json();
+        setData(result.data);
 
-    // Append form data except image
-    formData.append(
+        // Set form default values
+        setValue("name", result.data.name);
+        setValue("email", result.data.email);
+        setValue("role", result.data.role);
+        setValue("address", result.data.address);
+        setValue("active", result.data.active);
+        setValue("languages", result.data.languages || []);
+        setValue("phone", result.data.phone);
+        setValue(
+          "birthdate",
+          result.data.birthdate ? new Date(result.data.birthdate) : undefined
+        );
+        setValue("gender", result.data.gender);
+        setImagePreview(result.data.imageUrl || null); // Assuming `imageUrl` contains the profile image URL
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchData();
+  }, [params.id, setValue]);
+
+  const onSubmit = async (formData: IUserForm) => {
+    setLoading(true);
+    const updateData = new FormData();
+
+    updateData.append(
       "data",
       JSON.stringify({
-        name: data.name,
-        email: data.email,
-        password: data.password,
-        role: data.role,
-        address: data.address,
-        active: data.active,
-        gender: data.gender,
-        birthdate: data.birthdate
-          ? format(data.birthdate, "yyyy-MM-dd")
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+        address: formData.address,
+        active: formData.active,
+        languages: formData.languages,
+        phone: formData.phone,
+        birthdate: formData.birthdate
+          ? format(formData.birthdate, "yyyy-MM-dd")
           : undefined,
-        phone: data.phone,
-        languages: data.languages, // append languages
+        gender: formData.gender,
       })
     );
 
-    // Append the image if present
     if (imageFile) {
-      formData.append("file", imageFile);
+      updateData.append("file", imageFile);
     }
 
     try {
-      // Send the data with a POST request
-      const response = await fetch("http://localhost:4000/api/user", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `http://localhost:4000/api/user/${params.id}`,
+        {
+          method: "PUT",
+          body: updateData,
+        }
+      );
 
       const result = await response.json();
-      console.log("Server response:", result);
-      router.push('/users')
+      console.log("Update response:", result);
+      router.push(`/users`);
     } catch (error) {
-      console.error("Error during form submission:", error);
-    }
-    finally {
+      console.error("Error updating user:", error);
+    } finally {
       setLoading(false);
     }
   };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]; // Ensure we're handling the first file
+    const file = event.target.files?.[0];
     if (file) {
       const objectUrl = URL.createObjectURL(file);
-      setImageFile(file); // Set the file to state
-      setImagePreview(objectUrl); // Set the preview image URL
+      setImageFile(file);
+      setImagePreview(objectUrl);
     }
   };
 
   const removeImage = () => {
-    setImageFile(null); // Remove file from state
-    setImagePreview(null); // Remove preview
+    setImageFile(null);
+    setImagePreview(null);
   };
 
+  if (!data) return <div>Loading...</div>;
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -344,7 +358,6 @@ const UserForm: React.FC = () => {
             type="file"
             accept="image/png, image/jpeg, image/jpg"
             onChange={handleImageChange}
-           
           />
         </div>
         {imagePreview && (
@@ -373,13 +386,11 @@ const UserForm: React.FC = () => {
       {/* Submit Button */}
       <div className="flex justify-center mt-6">
         <Button type="submit" disabled={loading}>
-          {
-            loading ? <span>Loading...</span> : <span>Submit</span>
-          }
-          </Button>
+          {loading ? <span>Loading...</span> : <span>Submit</span>}
+        </Button>
       </div>
     </form>
   );
 };
 
-export default UserForm;
+export default UpdateUser;
