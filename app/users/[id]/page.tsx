@@ -61,7 +61,7 @@ const UpdateUser = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/user/${params.id}`
+          `${process.env.NEXT_PUBLIC_API_URL}/user/id/${params.id}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch user data");
@@ -70,19 +70,19 @@ const UpdateUser = () => {
         setData(result.data);
 
         // Set form default values
-        setValue("name", result.data.name);
-        setValue("email", result.data.email);
-        setValue("role", result.data.role);
-        setValue("address", result.data.address);
-        setValue("active", result.data.active);
-        setValue("languages", result.data.languages || []);
-        setValue("phone", result.data.phone);
+        setValue("name", result.data?.name);
+        setValue("email", result.data?.email);
+        setValue("role", result.data?.role);
+        setValue("address", result.data?.address);
+        setValue("active", result.data?.active);
+        setValue("languages", result.data?.languages || []);
+        setValue("phone", result.data?.phone);
         setValue(
           "birthdate",
-          result.data.birthdate ? new Date(result.data.birthdate) : undefined
+          result.data?.birthdate ? new Date(result.data?.birthdate) : undefined
         );
-        setValue("gender", result.data.gender);
-        setImagePreview(result.data.image || null);
+        setValue("gender", result.data?.gender);
+        setImagePreview(result.data?.image || null);
       } catch (err) {
         console.error(err);
       }
@@ -98,17 +98,17 @@ const UpdateUser = () => {
     updateData.append(
       "data",
       JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-        role: formData.role,
-        address: formData.address,
-        active: formData.active,
-        languages: formData.languages,
-        phone: formData.phone,
-        birthdate: formData.birthdate
-          ? format(formData.birthdate, "yyyy-MM-dd")
+        name: formData?.name,
+        email: formData?.email,
+        role: formData?.role,
+        address: formData?.address,
+        active: formData?.active,
+        languages: formData?.languages,
+        phone: formData?.phone,
+        birthdate: formData?.birthdate
+          ? format(formData?.birthdate, "yyyy-MM-dd")
           : undefined,
-        gender: formData.gender,
+        gender: formData?.gender,
       })
     );
 
@@ -165,7 +165,7 @@ const UpdateUser = () => {
         </label>
         <Input {...register("name")} id="name" />
         {errors.name && (
-          <p className="text-red-500 text-sm">{errors.name.message}</p>
+          <p className="text-red-500 text-sm">{errors?.name?.message}</p>
         )}
       </div>
 
@@ -176,7 +176,7 @@ const UpdateUser = () => {
         </label>
         <Input {...register("email")} id="email" type="email" />
         {errors.email && (
-          <p className="text-red-500 text-sm">{errors.email.message}</p>
+          <p className="text-red-500 text-sm">{errors?.email?.message}</p>
         )}
       </div>
 
@@ -187,7 +187,7 @@ const UpdateUser = () => {
         </label>
         <Input {...register("phone")} id="phone" type="tel" />
         {errors.phone && (
-          <p className="text-red-500 text-sm">{errors.phone.message}</p>
+          <p className="text-red-500 text-sm">{errors?.phone?.message}</p>
         )}
       </div>
 
@@ -210,7 +210,7 @@ const UpdateUser = () => {
           )}
         />
         {errors.role && (
-          <p className="text-red-500 text-sm">{errors.role.message}</p>
+          <p className="text-red-500 text-sm">{errors?.role?.message}</p>
         )}
       </div>
 
@@ -221,7 +221,7 @@ const UpdateUser = () => {
         </label>
         <Textarea {...register("address")} id="address" />
         {errors.address && (
-          <p className="text-red-500 text-sm">{errors.address.message}</p>
+          <p className="text-red-500 text-sm">{errors?.address?.message}</p>
         )}
       </div>
 
@@ -248,7 +248,7 @@ const UpdateUser = () => {
           )}
         />
         {errors.active && (
-          <p className="text-red-500 text-sm">{errors.active.message}</p>
+          <p className="text-red-500 text-sm">{errors?.active?.message}</p>
         )}
       </div>
 
