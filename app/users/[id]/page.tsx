@@ -82,7 +82,7 @@ const UpdateUser = () => {
           result.data.birthdate ? new Date(result.data.birthdate) : undefined
         );
         setValue("gender", result.data.gender);
-        setImagePreview(result.data.image || null); // Assuming `imageUrl` contains the profile image URL
+        setImagePreview(result.data.image || null);
       } catch (err) {
         console.error(err);
       }

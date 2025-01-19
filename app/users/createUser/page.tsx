@@ -80,7 +80,7 @@ const UserForm: React.FC = () => {
           ? format(data.birthdate, "yyyy-MM-dd")
           : undefined,
         phone: data.phone,
-        languages: data.languages, // append languages
+        languages: data.languages,
       })
     );
 
