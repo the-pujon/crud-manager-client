@@ -61,7 +61,7 @@ const UpdateUser = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:4000/api/user/id/${params.id}`
+          `${process.env.NEXT_PUBLIC_API_URL}/user/${params.id}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch user data");
@@ -118,7 +118,7 @@ const UpdateUser = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/user/${params.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${params.id}`,
         {
           method: "PUT",
           body: updateData,

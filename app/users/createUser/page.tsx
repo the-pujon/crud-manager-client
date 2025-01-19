@@ -91,7 +91,7 @@ const UserForm: React.FC = () => {
 
     try {
       // Send the data with a POST request
-      const response = await fetch("http://localhost:4000/api/user", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
         method: "POST",
         body: formData,
       });

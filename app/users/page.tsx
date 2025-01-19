@@ -17,7 +17,7 @@ const UsersManagement = () => {
         // Fetch data from API
         const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost:4000/api/user'); // Replace with your API endpoint
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user`); // Replace with your API endpoint
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
@@ -36,7 +36,7 @@ const UsersManagement = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await fetch(`http://localhost:4000/api/user/${id}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`, {
                 method: 'DELETE',
             });
             if (!response.ok) { return; }   
@@ -62,7 +62,7 @@ const UsersManagement = () => {
                 <h1 className="text-2xl font-bold">User Management</h1>
                 {/* Add a button to add a new user */}
                 <Button>
-                    <Link href="http://localhost:3000/users/createUser">Add User</Link>
+                    <Link href="/users/createUser">Add User</Link>
                 </Button>
             </div>
             {/* Table displaying user data */}
@@ -112,7 +112,7 @@ const UsersManagement = () => {
                                 <TableCell className='flex items-center space-x-2'>
                                     {/* Add action buttons here */}
                                     <button>
-                                    <Link href={`http://localhost:3000/users/${user._id}`}> <Edit size={20}/></Link>
+                                    <Link href={`/users/${user._id}`}> <Edit size={20}/></Link>
                                         
                                     </button>
                                     <button onClick={() => handleDelete(user._id as number)}>
