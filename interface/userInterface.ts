@@ -15,3 +15,21 @@ export interface IUser {
     gender?: 'male' | 'female' | 'other';
     // portrait?: URL;
 }
+
+
+export interface IUserUpdate {
+    _id?: number;
+    name?: string;
+    email?: string;
+    role?: 'admin' | 'user';
+    createdAt?: Date;
+    updatedAt?: Date;
+    address?: string;
+    image?: string;
+    active?: boolean;
+    languages?: string[];
+    phone?: string;
+    birthdate?: Date;
+    gender?: 'male' | 'female' | 'other';
+    // portrait?: URL;
+}

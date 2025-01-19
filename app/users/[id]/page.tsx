@@ -1,9 +1,9 @@
 "use client";
 
-import { IUser } from "@/interface/userInterface";
+import { IUserUpdate } from "@/interface/userInterface";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 // import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,17 +30,21 @@ import { cn } from "@/lib/utils";
 // import { useState } from "react";
 // import { zfd } from "zod-form-data";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { IUserForm, userSchema } from "../createUser/page";
 import { useRouter } from "next/navigation";
+import { UpdateUserSchema } from "@/schema/userSchema";
+import { z } from "zod";
 // import Image from "next/image";
 
 const UpdateUser = () => {
-  const [data, setData] = useState<IUser | null>(null);
+  const [data, setData] = useState<IUserUpdate | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const params = useParams();
   const router = useRouter()
+  const imageInputRef = useRef<HTMLInputElement | null>(null); // Ref for the file input
+
+   type IUserForm = z.infer<typeof UpdateUserSchema>;
 
   const {
     handleSubmit,
@@ -49,7 +53,7 @@ const UpdateUser = () => {
     setValue,
     formState: { errors },
   } = useForm<IUserForm>({
-    resolver: zodResolver(userSchema),
+    resolver: zodResolver(UpdateUserSchema),
   });
 
   useEffect(() => {
@@ -78,7 +82,7 @@ const UpdateUser = () => {
           result.data.birthdate ? new Date(result.data.birthdate) : undefined
         );
         setValue("gender", result.data.gender);
-        setImagePreview(result.data.imageUrl || null); // Assuming `imageUrl` contains the profile image URL
+        setImagePreview(result.data.image || null); // Assuming `imageUrl` contains the profile image URL
       } catch (err) {
         console.error(err);
       }
@@ -96,7 +100,6 @@ const UpdateUser = () => {
       JSON.stringify({
         name: formData.name,
         email: formData.email,
-        password: formData.password,
         role: formData.role,
         address: formData.address,
         active: formData.active,
@@ -142,8 +145,11 @@ const UpdateUser = () => {
   };
 
   const removeImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
+    setImageFile(null); // Remove file from state
+    setImagePreview(null); // Remove preview
+    if (imageInputRef.current) {
+      imageInputRef.current.value = ""; // Reset the file input
+    }
   };
 
   if (!data) return <div>Loading...</div>;
@@ -182,17 +188,6 @@ const UpdateUser = () => {
         <Input {...register("phone")} id="phone" type="tel" />
         {errors.phone && (
           <p className="text-red-500 text-sm">{errors.phone.message}</p>
-        )}
-      </div>
-
-      {/* Password */}
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium">
-          Password
-        </label>
-        <Input {...register("password")} id="password" type="password" />
-        {errors.password && (
-          <p className="text-red-500 text-sm">{errors.password.message}</p>
         )}
       </div>
 
@@ -354,6 +349,7 @@ const UpdateUser = () => {
         <label>Profile picture</label>
         <div>
           <Input
+           ref={imageInputRef}
             className=""
             type="file"
             accept="image/png, image/jpeg, image/jpg"

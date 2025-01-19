@@ -22,27 +22,14 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-import { zfd } from "zod-form-data";
+import { useRef, useState } from "react";
+// import { zfd } from "zod-form-data";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { userSchema } from "@/schema/userSchema";
 // import { useRouter } from "next/router";
 
-// Define Zod schema
-export const userSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.enum(["admin", "user"]),
-  address: z.string().min(1, "Address is required"),
-  active: z.boolean().optional(),
-  languages: z.array(z.string()).optional(), // Languages array remains
-  phone: z.string().optional(),
-  birthdate: z.date().optional(),
-  gender: z.enum(["male", "female", "other"]),
-  image: zfd.file().optional(),
-});
 
 export type IUserForm = z.infer<typeof userSchema>;
 
@@ -51,6 +38,7 @@ const UserForm: React.FC = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter()
+  const imageInputRef = useRef<HTMLInputElement | null>(null); // Ref for the file input
 
   const {
     handleSubmit,
@@ -128,9 +116,17 @@ const UserForm: React.FC = () => {
     }
   };
 
+  // const removeImage = () => {
+  //   setImageFile(null); // Remove file from state
+  //   setImagePreview(null); // Remove preview
+  // };
+
   const removeImage = () => {
     setImageFile(null); // Remove file from state
     setImagePreview(null); // Remove preview
+    if (imageInputRef.current) {
+      imageInputRef.current.value = ""; // Reset the file input
+    }
   };
 
   return (
@@ -340,6 +336,7 @@ const UserForm: React.FC = () => {
         <label>Profile picture</label>
         <div>
           <Input
+           ref={imageInputRef}
             className=""
             type="file"
             accept="image/png, image/jpeg, image/jpg"
